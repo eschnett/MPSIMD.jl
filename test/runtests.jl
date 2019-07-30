@@ -150,6 +150,15 @@ end
 
 using BenchmarkTools
 
+
+
+@benchmark x * y setup=((x,y)=rand(Int16,2)*big(2)^(128÷2-32))
+@benchmark x * y setup=((x,y)=rand(Int16,2)*big(2)^(256÷2-32))
+@benchmark x * y setup=((x,y)=rand(Int16,2)*big(2)^(512÷2-32))
+@benchmark x * y setup=((x,y)=rand(Int16,2)*big(2)^(1024÷2-32))
+
+
+
 using BitIntegers
 
 @benchmark Int128(x) * Int128(y) setup=((x,y)=rand(Int,2))

@@ -1,0 +1,10 @@
+name = "MPSIMD"
+uuid = "252eb4ea-7d77-4e7a-9f66-eb46ed6efb43"
+authors = ["Erik Schnetter <schnetter@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+Arbitrary = "07bf71a7-21be-5f6a-a6d1-44595bb4f960"
+InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+SIMD = "fdea26ae-647d-5447-a871-4b548cad5224"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

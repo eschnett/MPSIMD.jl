@@ -9,6 +9,8 @@ using MPSIMD
 # Define type
 const IntN128 = IntN{Float64, Int32, 4}
 const maxval = big(2)^120       # don't go near overflow yet
+const maxval2 = typeof(maxval)(sqrt(maxval))
+
 
 
 # Generate arbitrary values
@@ -100,6 +102,29 @@ end
 
 
 
+@testset "Multiplication" begin
+    for (x,y) in zip(xs, ys)
+        if abs(x * y) <= maxval
+            @test BigInt(IntN128(x) * IntN128(y)) == x * y
+        end
+        x1 = x % maxval2
+        y1 = y % maxval2
+        @test BigInt(IntN128(x1) * IntN128(y1)) == x1 * y1
+        if x != 0
+            x2 = x
+            y2 = y ÷ x
+            @test BigInt(IntN128(x2) * IntN128(y2)) == x2 * y2
+        end
+        if x1 != 0
+            x3 = x1
+            y3 = y ÷ x1
+            @test BigInt(IntN128(x3) * IntN128(y3)) == x3 * y3
+        end
+    end
+end
+
+
+
 # +z
 # -z
 # 
@@ -120,3 +145,25 @@ end
 # # @code_native MPSIMD.shift_up(i1.digits)
 # # @code_native normalize1(i1)
 # @code_native i0 + i0
+
+
+
+using BenchmarkTools
+
+using BitIntegers
+
+@benchmark Int128(x) * Int128(y) setup=((x,y)=rand(Int,2))
+@benchmark Int256(x) * Int256(y) setup=((x,y)=rand(Int,2))
+@benchmark Int512(x) * Int512(y) setup=((x,y)=rand(Int,2))
+@benchmark Int1024(x) * Int1024(y) setup=((x,y)=rand(Int,2))
+
+
+
+const IntN256 = IntN{Float64, Int32, 8}
+const IntN512 = IntN{Float64, Int32, 16}
+const IntN1024 = IntN{Float64, Int32, 32}
+
+@benchmark IntN128(x) * IntN128(y) setup=((x,y)=rand(Int,2))
+# @benchmark IntN256(x) * IntN256(y) setup=((x,y)=rand(Int,2))
+# @benchmark IntN512(x) * IntN512(y) setup=((x,y)=rand(Int,2))
+# @benchmark IntN1024(x) * IntN1024(y) setup=((x,y)=rand(Int,2))

@@ -7,6 +7,8 @@ end
 
 export IntN
 struct IntN{F, I, N} #<: Signed
+    # TODO: add a flag memoizing whether the representation is normalized
+
     digits::Vec{N, F}
 
     function IntN(::Internal{F1, I1, N1},
@@ -95,12 +97,65 @@ end
 
 
 
+sizedInt(::Type{Float16}) = Int16
+sizedInt(::Type{Float32}) = Int32
+sizedInt(::Type{Float64}) = Int64
+
+function Base.cmp(x::IntN{F, I, N}, y::IntN{F, I, N})::Int where {F, I, N}
+    J = sizedInt(F)
+    x1 = normalize(x)
+    y1 = normalize(y)
+    # r = cmp(x1.digits, y1.digits)
+    r = vifelse(x1.digits == y1.digits, Vec{N, J}(0),
+                vifelse(x1.digits < y1.digits, Vec{N, J}(-1), Vec{N, J}(1)))
+    for n in N:-1:1
+        r[n] != 0 && return r[n]
+    end
+    0
+end
+
+function Base. ==(x::IntN{F, I, N}, y::IntN{F, I, N})::Bool where {F, I, N}
+    cmp(x, y) == 0
+end
+
+function Base.isless(x::IntN{F, I, N}, y::IntN{F, I, N})::Bool where {F, I, N}
+    cmp(x, y) < 0
+end
+
+function Base.signbit(x::IntN{F, I, N})::Bool where {F, I, N}
+    cmp(x, zero(x)) < 0
+end
+
+function Base.flipsign(x::IntN{F, I, N},
+                       y::IntN{F, I, N})::IntN{F, I, N} where {F, I, N}
+    ifelse(signbit(y), -x, x)
+end
+
+function Base.abs(x::IntN{F, I, N})::IntN{F, I, N} where {F, I, N}
+    flipsign(x, x)
+end
+
+function Base.copysign(x::IntN{F, I, N},
+                       y::IntN{F, I, N})::IntN{F, I, N} where {F, I, N}
+    flipsign(abs(x), y)
+end
+
+
+
 function Base.zero(::Type{IntN{F, I, N}})::IntN{F, I, N} where {F, I, N}
     IntN{F, I, N}()
 end
 
 function Base.one(::Type{IntN{F, I, N}})::IntN{F, I, N} where {F, I, N}
     IntN{F, I, N}(1)
+end
+
+function Base.zero(::IntN{F, I, N})::IntN{F, I, N} where {F, I, N}
+    zero(IntN{F, I, N})
+end
+
+function Base.one(::IntN{F, I, N})::IntN{F, I, N} where {F, I, N}
+    one(IntN{F, I, N})
 end
 
 

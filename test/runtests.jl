@@ -35,8 +35,39 @@ end
 
 
 @testset "Conversions" begin
+    @test BigInt(zero(IntN128)) == 0
+    @test BigInt(one(IntN128)) == 1
     for x in xs
         @test BigInt(IntN128(x)) == x
+    end
+end
+
+
+
+@testset "Comparisons" begin
+    for x in xs
+        @test signbit(IntN128(x)) === signbit(x)
+        @test BigInt(abs(IntN128(x))) == abs(x)
+        @test cmp(IntN128(x), IntN128(x)) === 0
+        @test (IntN128(x) == IntN128(x)) === true
+        @test (IntN128(x) != IntN128(x)) === false
+        @test (IntN128(x) < IntN128(x)) === false
+        @test (IntN128(x) <= IntN128(x)) === true
+        @test (IntN128(x) > IntN128(x)) === false
+        @test (IntN128(x) >= IntN128(x)) === true
+        @test isequal(IntN128(x), IntN128(x)) === true
+        @test isless(IntN128(x), IntN128(x)) === false
+    end
+    for (x,y) in zip(xs, ys)
+        @test cmp(IntN128(x), IntN128(y)) === cmp(x, y)
+        @test (IntN128(x) == IntN128(y)) === (x == y)
+        @test (IntN128(x) != IntN128(y)) === (x != y)
+        @test (IntN128(x) < IntN128(y)) === (x < y)
+        @test (IntN128(x) <= IntN128(y)) === (x <= y)
+        @test (IntN128(x) > IntN128(y)) === (x > y)
+        @test (IntN128(x) >= IntN128(y)) === (x >= y)
+        @test isequal(IntN128(x), IntN128(y)) == isequal(x, y)
+        @test isless(IntN128(x), IntN128(y)) == isless(x, y)
     end
 end
 
